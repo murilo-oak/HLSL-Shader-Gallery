@@ -140,8 +140,8 @@ Shader "Unlit/Grass"
                 
                 float3x3 rotationAngleAxisMatrix = BuildAxisAngleRotation3x3(rand(pos) * TAU, normal);
                 float3x3 bendRotationMatrix = BuildAxisAngleRotation3x3(rand(pos.xzz) * TAU * 0.25 * _RandomBendRotation, float3(1,0,0));
-                float3x3 facingMatrix = mul(tangentToLocal, bendRotationMatrix); 
-                float3x3 transformMatrix = mul(mul(rotationAngleAxisMatrix, facingMatrix) , windRotation);
+                float3x3 facingMatrix = mul(mul(bendRotationMatrix, rotationAngleAxisMatrix), tangentToLocal); 
+                float3x3 transformMatrix = mul(facingMatrix , windRotation);
 
 
                 float3 width = float3(0.5, 0, 0) * _Width * (rand(pos.xzy) * 0.5 + 0.5);
