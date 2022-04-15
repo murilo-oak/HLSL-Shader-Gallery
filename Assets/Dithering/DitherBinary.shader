@@ -4,10 +4,11 @@ Shader "Unlit/DitheringBinary"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Gloss ("Gloss", Range(0,1)) = 1
-        _SurfaceColor("Surface Color", Color) = (1,1,1,1)
         _DitherPattern ("Texture", 2D) = "" {}
         _DensityPattern("Density", Range(0.1, 1)) = 1
         
+        _SurfaceColorA("Surface Color A", Color) = (1,1,1,1)
+        _SurfaceColorB("Surface Color B", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -69,7 +70,8 @@ Shader "Unlit/DitheringBinary"
             }
                         
             float _Gloss;
-            float4 _SurfaceColor;
+            float4 _SurfaceColorA;
+            float4 _SurfaceColorB;
             
             float4 _DitherPattern_TexelSize;
             
@@ -88,12 +90,14 @@ Shader "Unlit/DitheringBinary"
                 float ditherValue = tex2D(_DitherPattern, ditherCoordinate).r;
                 
                 float attenuation = LIGHT_ATTENUATION(i);
-                float3 light = ApplyLighting(_SurfaceColor, normal, wPos, _Gloss, _LightColor0, attenuation);
+                const float4 whiteColor = float4(1,1,1,1);
+                float3 light = ApplyLighting(whiteColor, normal, wPos, _Gloss, _LightColor0, attenuation);
 
                 
-                float ditherLight = step(ditherValue,light);
-                //return _DitherPattern_TexelSize.z;
-                return ditherLight * _SurfaceColor;
+                float ditherLight = step(ditherValue, light);
+                float4 newColor = lerp(_SurfaceColorB, _SurfaceColorA, ditherLight);
+
+                return newColor * 0.85;
                 
             }
    

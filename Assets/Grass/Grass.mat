@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dithering_red
-  m_Shader: {fileID: 4800000, guid: 017e06012108dbc4c825fd79e8a7f3ee, type: 3}
+  m_Name: Grass
+  m_Shader: {fileID: 4800000, guid: ba29e29866f29fa48aa5c4404b1bfc52, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -35,10 +35,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _DitherPattern:
-        m_Texture: {fileID: 2800000, guid: 6fea082a831a59f4d9ad113b3ade808f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -59,29 +55,38 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WindDistortionMap:
+        m_Texture: {fileID: 2800000, guid: 93d2935abc9dff24f9d715b8a4f57cf6, type: 3}
+        m_Scale: {x: 0.01, y: 0.01}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DensityPattern: 0.428
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Gloss: 0.619
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _Hight: 1.44
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RandomBendRotation: 0.479
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TessellationUniform: 10.4
     - _UVSec: 0
+    - _Width: 0.21
+    - _WindStrength: 0.92
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorA: {r: 0.5954843, g: 1, b: 0.514151, a: 1}
+    - _ColorB: {r: 0, g: 0, b: 0, a: 1}
+    - _ColorBottom: {r: 0.061676756, g: 0.20754719, b: 0.13654363, a: 1}
+    - _ColorTop: {r: 0.6544505, g: 0.9056604, b: 0.49127805, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SurfaceColor: {r: 0.7735849, g: 0.36873373, b: 0.29556784, a: 1}
-    - _SurfaceColorA: {r: 0.89019614, g: 0.93725497, b: 0.9058824, a: 1}
-    - _SurfaceColorB: {r: 0.19215688, g: 0.18823531, b: 0.10588236, a: 1}
+    - _WindFrequency: {r: 0.05, g: 0.05, b: 0, a: 0}
   m_BuildTextureStacks: []

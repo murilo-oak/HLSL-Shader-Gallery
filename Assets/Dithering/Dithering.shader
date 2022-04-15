@@ -3,7 +3,8 @@ Shader "Unlit/Dithering"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Color ("Color", Color) = (1,1,1,1) 
+        _ColorA ("Color", Color) = (1,1,1,1) 
+        _ColorB ("Color", Color) = (1,1,1,1) 
     }
     SubShader
     {
@@ -43,7 +44,8 @@ Shader "Unlit/Dithering"
                 return o;
             }
 
-            float4 _Color;
+            float4 _ColorA;
+            float4 _ColorB;
 
             float4 frag (v2f i) : SV_Target
             {
@@ -56,7 +58,7 @@ Shader "Unlit/Dithering"
 
                 float4 col = tex2D(_MainTex, texCoordinate);
 
-                col *= _Color;
+                col *= _ColorA;
                 return col;
             }
             ENDCG

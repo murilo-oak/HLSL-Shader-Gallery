@@ -15,7 +15,7 @@ public class LightAnimation : MonoBehaviour
         transform.rotation *= rot2;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         Quaternion rot = Quaternion.Euler(transform.rotation.eulerAngles);
         Quaternion rot2 = Quaternion.Euler(0, speed, 0);
