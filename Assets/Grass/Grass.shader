@@ -20,6 +20,8 @@ Shader "Unlit/Grass"
         _WindStrength("Wind Strength", Float) = 1
     }
     CGINCLUDE
+
+    #define BLADES_COUNT 3
     
     struct geometryOutput
     {
@@ -116,7 +118,7 @@ Shader "Unlit/Grass"
             //     return o;
             // }
             
-            [maxvertexcount(3)]
+            [maxvertexcount(BLADES_COUNT * 2 + 1)]
             void geo(triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
                 geometryOutput o;
@@ -127,9 +129,7 @@ Shader "Unlit/Grass"
 
                 float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
                 float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
-
                 float3 wind = normalize(float3(windSample.x, windSample.y, 0));
-                
                 float3x3 windRotation = BuildAxisAngleRotation3x3(UNITY_PI * windSample, wind);
 
                 float3x3 tangentToLocal = float3x3(
