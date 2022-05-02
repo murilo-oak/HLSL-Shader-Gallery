@@ -9,8 +9,11 @@ Shader "Unlit/Grass"
         
         _RandomBendRotation ("Random Bend", Range(0,1)) = 0.1
         
-        _Hight ("Height", Range(0,2)) = 1
+        _Height ("Height", Range(0,2)) = 1
+        _BladeHeightRandom ("Height Random", Range(0,2)) = 0.3 
+        
         _Width ( "Width", Range(0,2)) = 1
+        _BladeWidthRandom("Blade Width Random", Float) = 0.02
         
         _TessellationUniform("Tessellation Uniform", Range(1, 64)) = 1
         
@@ -21,7 +24,9 @@ Shader "Unlit/Grass"
     }
     CGINCLUDE
 
-    #define BLADES_COUNT 3
+    #define BLADE_SEGMENTS 3
+    #include "CustomTessellation.cginc"
+    #include "UnityCG.cginc"
     
     struct geometryOutput
     {
@@ -53,6 +58,22 @@ Shader "Unlit/Grass"
 	{
 		return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
 	}
+
+    geometryOutput VertexOutput(float3 pos, float2 uv)
+    {
+	    geometryOutput o;
+	    o.pos = UnityObjectToClipPos(pos);
+        o.uv = uv;
+	    return o;
+    }
+    
+    geometryOutput GenerateGrassVertex(float3 vertexPosition, float width, float height, float2 uv, float3x3 transformMatrix)
+    {
+	    float3 tangentPoint = float3(width, height, 0);
+
+	    float3 localPosition = vertexPosition + mul(tangentPoint, transformMatrix);
+	    return VertexOutput(localPosition, uv);
+    }
     
     ENDCG
     
@@ -74,51 +95,28 @@ Shader "Unlit/Grass"
 
             #define TAU 6.28318530718
 
-            #include "UnityCG.cginc"
-            #include "CustomTessellation.cginc"
-
-            // struct appdata
-            // {
-            //     float4 vertex : POSITION;
-            //     float2 uv : TEXCOORD0;
-            //     float3 normal : NORMAL;
-            //     float4 tangent : TANGENT;
-            // };
-            //
-            // struct v2f
-            // {
-            //     float4 vertex : SV_POSITION;
-            //     float3 normal : NORMAL;
-            //     float4 tangent : TANGENT;
-            //     float2 uv : TEXCOORD0;
-            // };
-
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
             float4 _ColorTop;
             float4 _ColorBottom;
             float _RandomBendRotation;
+
+            
+            float _Height;
+            float _BladeHeightRandom;	
+
             float _Width;
-            float _Hight;
+            float _BladeWidthRandom;
 
             sampler2D _WindDistortionMap;
             float4 _WindDistortionMap_ST;
 
             float2 _WindFrequency;
             float _WindStrength;
-
-            // v2f vert (appdata v)
-            // {
-            //     v2f o;
-            //     o.vertex = v.vertex;
-            //     o.normal = v.normal;
-            //     o.tangent = v.tangent;
-            //     o.uv = v.uv;
-            //     return o;
-            // }
             
-            [maxvertexcount(BLADES_COUNT * 2 + 1)]
+            
+            [maxvertexcount(BLADE_SEGMENTS * 2 + 1)]
             void geo(triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
                 geometryOutput o;
@@ -140,24 +138,29 @@ Shader "Unlit/Grass"
                 
                 float3x3 rotationAngleAxisMatrix = BuildAxisAngleRotation3x3(rand(pos) * TAU, normal);
                 float3x3 bendRotationMatrix = BuildAxisAngleRotation3x3(rand(pos.xzz) * TAU * 0.25 * _RandomBendRotation, float3(1,0,0));
-                float3x3 facingMatrix = mul(mul(bendRotationMatrix, rotationAngleAxisMatrix), tangentToLocal); 
+                float3x3 facingMatrix = mul(mul(tangentToLocal, bendRotationMatrix), rotationAngleAxisMatrix); 
                 float3x3 transformMatrix = mul(facingMatrix , windRotation);
 
 
                 float3 width = float3(0.5, 0, 0) * _Width * (rand(pos.xzy) * 0.5 + 0.5);
-                float3 hight = float3(0, 0, 1) * _Hight * (rand(pos) * 0.6 + 0.4);
+                float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _Height;
+
+                for (int i = 0; i < BLADE_SEGMENTS; i++)
+                {
+	                float t = i / (float)BLADE_SEGMENTS;
+
+                    float segmentHeight = height * t;
+                    float segmentWidth = width * (1 - t);
+
+
+                    float3x3 transformMatrix2 = i == 0 ? facingMatrix: transformMatrix;
+
+                    triStream.Append(GenerateGrassVertex(pos, segmentWidth, segmentHeight, float2(0, t), transformMatrix2));
+                    triStream.Append(GenerateGrassVertex(pos, -segmentWidth, segmentHeight, float2(1, t), transformMatrix2));
+                }
                 
-                o.pos = UnityObjectToClipPos(mul(facingMatrix, width) + pos);
-                o.uv = float2(1,0);
-                triStream.Append(o);
-            
-                o.pos = UnityObjectToClipPos(mul(facingMatrix, -width) + pos);
-                o.uv = float2(0,0);
-                triStream.Append(o);
-            
-                o.pos = UnityObjectToClipPos(mul(transformMatrix, hight) + pos);
-                o.uv = float2(0.5,1);
-                triStream.Append(o);
+                triStream.Append(GenerateGrassVertex(pos, 0, height, float2(0.5, 1), transformMatrix));
+                
             }
 
             fixed4 frag (geometryOutput i) : SV_Target
