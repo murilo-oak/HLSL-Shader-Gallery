@@ -21,17 +21,24 @@ Shader "Unlit/Grass"
         _WindDistortionMap("Wind Distortion Map", 2D) = "white" {}
         _WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
         _WindStrength("Wind Strength", Float) = 1
+        
+        
+        _BladeForward("Blade Forward Amount", Float) = 0.38
+        _BladeCurve("Blade Curvature Amount", Range(1, 4)) = 2
     }
     CGINCLUDE
 
-    #define BLADE_SEGMENTS 3
+    #define BLADE_SEGMENTS 10
     #include "CustomTessellation.cginc"
+    #include  "AutoLight.cginc"
     #include "UnityCG.cginc"
+    
     
     struct geometryOutput
     {
         float4 pos : SV_POSITION;
         float2 uv : TEXCOORD0;
+    	unityShadowCoord4 _ShadowCoord : TEXCOORD1;
     };
 
     float3x3 BuildAxisAngleRotation3x3(float angle, float3 axis)
@@ -64,12 +71,13 @@ Shader "Unlit/Grass"
 	    geometryOutput o;
 	    o.pos = UnityObjectToClipPos(pos);
         o.uv = uv;
+    	o._ShadowCoord = ComputeScreenPos(o.pos);
 	    return o;
     }
     
-    geometryOutput GenerateGrassVertex(float3 vertexPosition, float width, float height, float2 uv, float3x3 transformMatrix)
+    geometryOutput GenerateGrassVertex(float3 vertexPosition, float width, float foward, float height, float2 uv, float3x3 transformMatrix)
     {
-	    float3 tangentPoint = float3(width, height, 0);
+	    float3 tangentPoint = float3(width, height, foward);
 
 	    float3 localPosition = vertexPosition + mul(tangentPoint, transformMatrix);
 	    return VertexOutput(localPosition, uv);
@@ -80,7 +88,7 @@ Shader "Unlit/Grass"
     
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+	    Tags { "LightMode" = "ForwardBase" }
         Cull Off
         LOD 100
 
@@ -114,12 +122,14 @@ Shader "Unlit/Grass"
 
             float2 _WindFrequency;
             float _WindStrength;
+
+            float _BladeForward;
+            float _BladeCurve;
             
             
             [maxvertexcount(BLADE_SEGMENTS * 2 + 1)]
-            void geo(triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
+            void geo (triangle vertexOutput IN[3] : SV_POSITION, inout TriangleStream<geometryOutput> triStream)
             {
-                geometryOutput o;
                 float3 pos = IN[0].vertex;
                 float3 normal = IN[0].normal;
                 float4 tangent = IN[0].tangent;
@@ -137,12 +147,13 @@ Shader "Unlit/Grass"
                 );
                 
                 float3x3 rotationAngleAxisMatrix = BuildAxisAngleRotation3x3(rand(pos) * TAU, normal);
-                float3x3 bendRotationMatrix = BuildAxisAngleRotation3x3(rand(pos.xzz) * TAU * 0.25 * _RandomBendRotation, float3(1,0,0));
+                float3x3 bendRotationMatrix = BuildAxisAngleRotation3x3(rand(pos.zzx) * TAU * 0.5 * _RandomBendRotation, float3(1,0,0));
                 float3x3 facingMatrix = mul(mul(tangentToLocal, bendRotationMatrix), rotationAngleAxisMatrix); 
                 float3x3 transformMatrix = mul(facingMatrix , windRotation);
 
 
                 float3 width = float3(0.5, 0, 0) * _Width * (rand(pos.xzy) * 0.5 + 0.5);
+                float forward = rand(pos.yyz) * _BladeForward;
                 float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _Height;
 
                 for (int i = 0; i < BLADE_SEGMENTS; i++)
@@ -151,24 +162,46 @@ Shader "Unlit/Grass"
 
                     float segmentHeight = height * t;
                     float segmentWidth = width * (1 - t);
+                    float segmentForward = pow(t, _BladeCurve) * forward;
 
 
                     float3x3 transformMatrix2 = i == 0 ? facingMatrix: transformMatrix;
 
-                    triStream.Append(GenerateGrassVertex(pos, segmentWidth, segmentHeight, float2(0, t), transformMatrix2));
-                    triStream.Append(GenerateGrassVertex(pos, -segmentWidth, segmentHeight, float2(1, t), transformMatrix2));
+                    triStream.Append(GenerateGrassVertex(pos, segmentWidth, segmentForward, segmentHeight, float2(0, t), transformMatrix2));
+                    triStream.Append(GenerateGrassVertex(pos, -segmentWidth, segmentForward, segmentHeight, float2(1, t), transformMatrix2));
                 }
                 
-                triStream.Append(GenerateGrassVertex(pos, 0, height, float2(0.5, 1), transformMatrix));
+                triStream.Append(GenerateGrassVertex(pos, 0, forward, height, float2(0.5, 1), transformMatrix));
                 
             }
 
             fixed4 frag (geometryOutput i) : SV_Target
             {
                 float4 color = lerp(_ColorBottom, _ColorTop, i.uv.y);
-                return color;
+				half shadow = SHADOW_ATTENUATION(i);
+            	return color * shadow;
             }
             ENDCG
         }
+        Pass
+		{
+			Tags { "LightMode" = "ShadowCaster" }
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma geometry geo
+			#pragma fragment frag
+			#pragma hull hull
+			#pragma domain domain
+			#pragma target 4.6
+			#pragma multi_compile_shadowcaster
+
+			float4 frag(geometryOutput i) : SV_Target
+			{
+				SHADOW_CASTER_FRAGMENT(i)
+			}
+
+			ENDCG
+		}
     }
 }

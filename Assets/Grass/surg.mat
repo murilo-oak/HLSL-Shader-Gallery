@@ -7,12 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass
-  m_Shader: {fileID: 4800000, guid: ba29e29866f29fa48aa5c4404b1bfc52, type: 3}
+  m_Name: surg
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
@@ -55,15 +55,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _WindDistortionMap:
-        m_Texture: {fileID: 2800000, guid: 93d2935abc9dff24f9d715b8a4f57cf6, type: 3}
-        m_Scale: {x: 0.01, y: 0.01}
-        m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _BladeCurve: 2
-    - _BladeForward: 0.38
-    - _BladeHeightRandom: 0.264
-    - _BladeWidthRandom: 0.02
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -71,27 +63,16 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Height: 0.463
-    - _Hight: 1.02
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RandomBendRotation: 0.813
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TessellationUniform: 22.1
     - _UVSec: 0
-    - _Width: 0.136
-    - _WindStrength: 3
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorA: {r: 0.5954843, g: 1, b: 0.514151, a: 1}
-    - _ColorB: {r: 0, g: 0, b: 0, a: 1}
-    - _ColorBottom: {r: 0.013014056, g: 0.0754717, b: 0, a: 1}
-    - _ColorTop: {r: 0.6226415, g: 0.20251693, b: 0.02055893, a: 1}
+    - _Color: {r: 0.8962264, g: 0.14796188, b: 0.14796188, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _WindFrequency: {r: 0.05, g: 0.05, b: 0, a: 0}
   m_BuildTextureStacks: []
