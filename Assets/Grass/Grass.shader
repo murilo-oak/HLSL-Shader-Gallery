@@ -32,11 +32,12 @@ Shader "Unlit/Grass"
     #include "CustomTessellation.cginc"
     #include  "AutoLight.cginc"
     #include "UnityCG.cginc"
-    
+    #include "UnityLightingCommon.cginc"
     
     struct geometryOutput
     {
         float4 pos : SV_POSITION;
+    	float3 normal : NORMAL;
         float2 uv : TEXCOORD0;
     	unityShadowCoord4 _ShadowCoord : TEXCOORD1;
     };
@@ -66,11 +67,13 @@ Shader "Unlit/Grass"
 		return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
 	}
 
-    geometryOutput VertexOutput(float3 pos, float2 uv)
+    geometryOutput VertexOutput(float3 pos, float3 normal, float2 uv)
     {
 	    geometryOutput o;
 	    o.pos = UnityObjectToClipPos(pos);
-        o.uv = uv;
+		o.normal = UnityObjectToWorldNormal(normal);
+    	o.uv = uv;
+    	
     	o._ShadowCoord = ComputeScreenPos(o.pos);
 	    return o;
     }
@@ -78,9 +81,11 @@ Shader "Unlit/Grass"
     geometryOutput GenerateGrassVertex(float3 vertexPosition, float width, float foward, float height, float2 uv, float3x3 transformMatrix)
     {
 	    float3 tangentPoint = float3(width, height, foward);
+    	float3 tangentNormal = float3(0, -1, 0);
+		float3 localNormal = mul(transformMatrix, tangentNormal);
 
 	    float3 localPosition = vertexPosition + mul(tangentPoint, transformMatrix);
-	    return VertexOutput(localPosition, uv);
+	    return VertexOutput(localPosition, localNormal, uv);
     }
     
     ENDCG
@@ -164,8 +169,17 @@ Shader "Unlit/Grass"
                     float segmentWidth = width * (1 - t);
                     float segmentForward = pow(t, _BladeCurve) * forward;
 
-
-                    float3x3 transformMatrix2 = i == 0 ? facingMatrix: transformMatrix;
+                	float3x3 transformMatrix2;
+                	
+					if(i!=0)
+                	{
+                		windRotation = BuildAxisAngleRotation3x3(UNITY_PI * windSample, wind * t);
+                		transformMatrix2 = mul(facingMatrix , windRotation);
+                	}else
+                	{
+                		transformMatrix2 = facingMatrix;
+                	}
+                    
 
                     triStream.Append(GenerateGrassVertex(pos, segmentWidth, segmentForward, segmentHeight, float2(0, t), transformMatrix2));
                     triStream.Append(GenerateGrassVertex(pos, -segmentWidth, segmentForward, segmentHeight, float2(1, t), transformMatrix2));
@@ -179,7 +193,14 @@ Shader "Unlit/Grass"
             {
                 float4 color = lerp(_ColorBottom, _ColorTop, i.uv.y);
 				half shadow = SHADOW_ATTENUATION(i);
-            	return color * shadow;
+				
+				float NdotL = saturate(saturate(dot(i.normal, _WorldSpaceLightPos0))) * shadow;
+
+				float3 ambientLight = ShadeSH9(float4(i.normal, 1));
+				float4 lightIntensity = 0.2 + NdotL * _LightColor0 + float4(ambientLight, 1);
+				float4 col = lerp(_ColorBottom, _ColorTop * lightIntensity, i.uv.y);
+
+				return col;
             }
             ENDCG
         }
@@ -198,7 +219,7 @@ Shader "Unlit/Grass"
 
 			float4 frag(geometryOutput i) : SV_Target
 			{
-				SHADOW_CASTER_FRAGMENT(i)
+				SHADOW_CASTER_FRAGMENT(i);
 			}
 
 			ENDCG

@@ -62,7 +62,7 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DensityPattern: 0.472
+    - _DensityPattern: 0.906
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _Gloss: 0.661
@@ -82,6 +82,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SurfaceColor: {r: 0.6698231, g: 0.6537469, b: 0.7830189, a: 1}
-    - _SurfaceColorA: {r: 0.6037736, g: 0.2693288, b: 0.20790316, a: 1}
-    - _SurfaceColorB: {r: 0.13207549, g: 0.005606976, b: 0.03132321, a: 1}
+    - _SurfaceColorA: {r: 0.8, g: 0, b: 0, a: 1}
+    - _SurfaceColorB: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
