@@ -1,6 +1,6 @@
 ﻿# HLSL Shader Gallery 🎨
 
-![HLSL Shader Gallery](docs/grass.png)
+![HLSL Shader Gallery](docs/Grass.png)
 
 Welcome to the HLSL Shader Gallery, a showcase of meticulously crafted scenes that demonstrate the technical artistry behind shader programming. 
 
@@ -8,7 +8,7 @@ Welcome to the HLSL Shader Gallery, a showcase of meticulously crafted scenes th
 
 Explore a collection of shaders developed as assignments for the "Shaders for Game Devs" course. Immerse yourself in the world of shaders with implementations that include multiple lights and two health bar shaders. To learn more about this course and its assignments, refer to the course playlist [here](https://www.youtube.com/playlist?list=PLImQaTpSAdsCnJon-Eir92SZMl7tPBS4Z).
 
-![Multiple Lights](docs/multiple_lights.png)
+![Multiple Lights](docs/Multiple_lights.png)
 
 ## Scene 2: Dithering Effect ✨
 
@@ -20,7 +20,7 @@ Discover the mesmerizing dithering effect showcased in this scene. This shader a
 
 Step into a vibrant grassy landscape rendered using a geometry shader with tessellation. This scene presents a stylized representation of grass, showcasing the artistry of shader programming. Although shadows are not utilized, this implementation draws inspiration from the article [Grass Shader](https://roystan.net/articles/grass-shader/) and incorporates elements of the Subsurface Scattering effect described in the article [Fast Subsurface Scattering](https://www.alanzucconi.com/2017/08/30/fast-subsurface-scattering-1/).
 
-![Grass Rendering with Tessellation](docs/grass.png)
+![Grass Rendering with Tessellation](docs/Grass.png)
 
 ## How to Explore the HLSL Shader Gallery 🖥️
 
