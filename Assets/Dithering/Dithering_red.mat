@@ -62,7 +62,7 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DensityPattern: 0.428
+    - _DensityPattern: 0.271
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _Gloss: 0.619

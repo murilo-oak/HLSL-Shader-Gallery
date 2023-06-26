@@ -1,4 +1,4 @@
-Shader "Unlit/Shader1"
+Shader "Unlit/CosShaderAnimation"
 {
     Properties
     {
@@ -68,8 +68,6 @@ Shader "Unlit/Shader1"
             
             float4 frag (Interpolators i) : SV_Target
             {
-                // sample the texture
-                //float t = frac(InverseLerp(_ColorStart, _ColorEnd, -i.uv.y) + _Time.y);
 
                 float xOffset = cos(i.uv.y * TAU * 8) * 0.01 + _Time.y * _WaveSpeed;
                 float t = cos((i.uv.x+ xOffset) * TAU * 5) * 0.5 + 0.5;

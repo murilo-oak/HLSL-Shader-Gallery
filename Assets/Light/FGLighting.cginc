@@ -45,7 +45,7 @@ float4 frag (Interpolators i) : SV_Target
 {
     float3 normal = i.normal;
     float3 wPos = i.wPos;
-    float3 view_direction = normalize(_WorldSpaceCameraPos - wPos);
+
     float attenuation = LIGHT_ATTENUATION(i);
     float3 light = ApplyLighting(_SurfaceColor, normal, wPos, _Gloss, _LightColor0, attenuation);
                 
