@@ -12,7 +12,7 @@ Explore a collection of shaders developed as assignments for the "Shaders for Ga
 
 ## Scene 2: Dithering Effect ✨
 
-Discover the mesmerizing dithering effect showcased in this scene. This shader adds a touch of artistic brilliance to any visual effects toolkit. To delve deeper into the implementation of dithering shaders, refer to the article [Dithered Shading Tutorial](https://medium.com/the-bkpt/dithered-shading-tutorial-29f57d06ac39).
+Discover the mesmerizing dithering effect showcased in this scene. This shader adds a touch of artistic brilliance to any visual effects toolkit. To delve deeper into the implementation of dithering shaders, refer to the article [Dithering](https://www.ronja-tutorials.com/post/042-dithering/).
 
 ![Dithering Effect](docs/Dithering.png)
 
