@@ -22,7 +22,7 @@ Shader "Unlit/DitheringBinary"
             #pragma target 3.0
             #include "UnityCG.cginc"
             #include "UnityLightingCommon.cginc"
-            #include "SharedFunctions.cginc"
+            #include "../Light/SharedFunctions.cginc"
             #include "AutoLight.cginc"
                         
             struct MeshData
