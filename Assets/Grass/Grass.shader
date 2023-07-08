@@ -1,3 +1,11 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Unlit/Grass"
 {
     Properties
@@ -97,7 +105,7 @@ Shader "Unlit/Grass"
     	o.pos = UnityObjectToClipPos(pos);
 		o.normal = UnityObjectToWorldNormal(normal);
     	o.uv = uv;
-    	o.vertexWorld = mul(unity_ObjectToWorld, pos).xyz;
+    	o.vertexWorld = mul(unity_ObjectToWorld, float4(pos, 1)).xyz;
     	
 	    return o;
     }
@@ -241,8 +249,7 @@ Shader "Unlit/Grass"
             {
             	//grass color
                 float4 color = lerp(_ColorBottom, _ColorTop, i.uv.y);
-
-            	//view direction to grass position
+				
             	float3 viewDirection  = normalize(_WorldSpaceCameraPos - i.vertexWorld );
 				float geometryFactorClampled = clamp(dot(_WorldSpaceLightPos0, i.normal), 0.9, 1);
 
