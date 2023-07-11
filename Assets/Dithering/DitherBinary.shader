@@ -7,8 +7,8 @@ Shader "Unlit/DitheringBinary"
         _DitherPattern ("Texture", 2D) = "" {}
         _DensityPattern("Density", Range(0.1, 1)) = 1
         
-        _SurfaceColorA("Surface Color A", Color) = (1,1,1,1)
-        _SurfaceColorB("Surface Color B", Color) = (1,1,1,1)
+        _SurfaceColorA("Surface Color Light", Color) = (1,1,1,1)
+        _SurfaceColorB("Surface Color Shadow", Color) = (1,1,1,1)
     }
     SubShader
     {
@@ -57,14 +57,12 @@ Shader "Unlit/DitheringBinary"
 
                 o.screenPosition = ComputeScreenPos(o.vertex);
                 o.wPos = mul(UNITY_MATRIX_M, v.vertex);
-                TRANSFER_VERTEX_TO_FRAGMENT(o); // lighting 
+                TRANSFER_VERTEX_TO_FRAGMENT(o); 
 
                 float2 scaleCenter = float2(0.5f, 0.5f);
                 o.uv = (v.uv - scaleCenter) * _DensityPattern + scaleCenter;
                 
-                //o.uv = TRANSFORM_TEX(v.uv, _DitherPattern);
                 o.normal = UnityObjectToWorldNormal(v.normal);
-
                             
                 return o;
             }
@@ -79,26 +77,32 @@ Shader "Unlit/DitheringBinary"
             {
                 float3 normal = i.normal;
                 float3 wPos = i.wPos;
-                
+
+                // Calulate screen position normalized
                 float2 screenPos = i.screenPosition.xy/i.screenPosition.w;
+
+                // Calculate dither coordinate based on screen position and dither pattern size
                 float2 ditherCoordinate = screenPos * _ScreenParams.xy * _DitherPattern_TexelSize.xy;
 
-
                 float2 scaleCenter = float2(0.5f, 0.5f);
-                //(v.uv - scaleCenter) * _DensityPattern + scaleCenter;
+
+                // Apply scaling and offset to dither coordinate using the density pattern
                 ditherCoordinate = (ditherCoordinate - scaleCenter) * _DensityPattern + scaleCenter;
                 float ditherValue = tex2D(_DitherPattern, ditherCoordinate).r;
                 
                 float attenuation = LIGHT_ATTENUATION(i);
+
+                // Calculate simple shading with white color
                 const float4 whiteColor = float4(1,1,1,1);
                 float3 light = ApplyLighting(whiteColor, normal, wPos, _Gloss, _LightColor0, attenuation);
 
-                
+                // Calculate dithered light intensity
                 float ditherLight = step(ditherValue, light);
+
+                // Change white color to user defined colors
                 float4 newColor = lerp(_SurfaceColorB, _SurfaceColorA, ditherLight);
 
-                return newColor * 0.85;
-                
+                return newColor;
             }
    
             ENDCG
