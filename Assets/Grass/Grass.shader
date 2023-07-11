@@ -1,11 +1,3 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
 Shader "Unlit/Grass"
 {
     Properties
@@ -72,7 +64,7 @@ Shader "Unlit/Grass"
         float cComplement = 1 - c;
         
 
-        //rotation matrix math
+        // Rotation matrix math
         return float3x3 (
             c + cComplement * x * x    , cComplement * x * y - s * z, cComplement * x * z + s * y,
             cComplement * x * y + s * z, c + cComplement * y * y    , cComplement * y * z - s * x,
@@ -82,7 +74,7 @@ Shader "Unlit/Grass"
 
     float rand(float3 co)
 	{
-    	//seed
+    	// Seed
 		return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
 	}
 
@@ -94,6 +86,7 @@ Shader "Unlit/Grass"
                 float3 halfVecN = normalize(lightDir + normalN * _Distortion);
 				float3 viewDirN = normalize(viewDir);
 
+    			// SSS
     			float  intensity = pow(saturate(dot(viewDirN, -halfVecN)), _Power) * _Scale;
                 return intensity * _LightColor0 * _ScatteringColor;
             }
@@ -173,50 +166,50 @@ Shader "Unlit/Grass"
                 float4 tangent = IN[0].tangent;
                 float3 biTangent = cross(normal, tangent.xyz) * tangent.w;
 
-            	//get uv offset and tiling coordinate
+            	// Get uv offset and tiling coordinate
                 float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
 
-            	//get from noise texture the wind sample
+            	// Get from noise texture the wind sample
             	float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
 
-            	//normalize wind sample
+            	// Normalize wind sample
             	float3 wind = normalize(float3(windSample.x, windSample.y, 0));
 
-				//the rotation that will be applied to the grass by the wind
+				// The rotation that will be applied to the grass by the wind
             	float3x3 windRotation = BuildAxisAngleRotation3x3(UNITY_PI * windSample, wind);
 
-            	//build matrix that transform tangent space vectors to local space
+            	// Build matrix that transform tangent space vectors to local space
                 float3x3 localSpaceMatrix = float3x3(
                     tangent.x, biTangent.x, normal.x,
                     tangent.y, biTangent.y, normal.y,
                     tangent.z, biTangent.z, normal.z
                 );
 
-            	//build rotation matrix around normal, the amount of grass' rotation is defined by a seed
+            	// Build rotation matrix around normal, the amount of grass' rotation is defined by a seed
                 float3x3 rotationAngleAxisMatrix = BuildAxisAngleRotation3x3(rand(pos) * TAU, normal);
 
-            	//build rotation to define the bend of the grass
+            	// Build rotation to define the bend of the grass
                 float3x3 bendRotationMatrix = BuildAxisAngleRotation3x3(rand(pos.zzx) * TAU * 0.5 * _RandomBendRotation, float3(1,0,0));
 
-				//build rotation that define where the grass is facing
+				// Build rotation that define where the grass is facing
             	float3x3 facingMatrix = mul(mul(localSpaceMatrix, bendRotationMatrix), rotationAngleAxisMatrix); 
 
-				//final rotation that define where the grass is facing with wind rotation
+				// Final rotation that define where the grass is facing with wind rotation
             	float3x3 transformMatrix = mul(facingMatrix , windRotation);
 
 
-            	//setup blade parameters
+            	// Setup blade parameters
                 float3 width = float3(0.5, 0, 0) * _Width * (rand(pos.xzy) * 0.5 + 0.5);
                 float forward = rand(pos.yyz) * _BladeForward;
                 float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _Height;
 
-            	//construct blade
+            	// Construct blade
                 for (int i = 0; i < BLADE_SEGMENTS; i++)
                 {
-                	//interpolator to be used to position the vertex of the blade
+                	// Interpolator to be used to position the vertex of the blade
 	                float grassProgress = i / (float)BLADE_SEGMENTS;
 
-                	//define the segment blade parameters
+                	// Define the segment blade parameters
                     float segmentHeight = height * grassProgress;
                     float segmentWidth = width * (1 - grassProgress);
                     float segmentForward = pow(grassProgress, _BladeCurve) * forward;
@@ -225,36 +218,36 @@ Shader "Unlit/Grass"
                 	
 					if(i!=0)
                 	{
-						//grassProgress can be used as a weight of wind rotation, because the bottom receives less
-						//effect from the wind than the top
+						// GrassProgress can be used as a weight of wind rotation, because the bottom receives less
+						// effect from the wind than the top
                 		windRotation = BuildAxisAngleRotation3x3(UNITY_PI * windSample, wind * grassProgress);
                 		transformMatrixAlongBlade = mul(facingMatrix , windRotation);
                 	}else
                 	{
-                		//bottom of the blade is not affected by wind, it is stuck on the ground's surface
+                		// Bottom of the blade is not affected by wind, it is stuck on the ground's surface
                 		transformMatrixAlongBlade = facingMatrix;
                 	}
                     
-					//right and left blade position
+					// Right and left blade position
                     triStream.Append(GenerateGrassVertex(pos, segmentWidth, segmentForward, segmentHeight, float2(0, grassProgress), transformMatrixAlongBlade));
                     triStream.Append(GenerateGrassVertex(pos, -segmentWidth, segmentForward, segmentHeight, float2(1, grassProgress), transformMatrixAlongBlade));
                 }
 
-            	//final/top blade position 
+            	// Final/top blade position 
                 triStream.Append(GenerateGrassVertex(pos, 0, forward, height, float2(0.5, 1), transformMatrix));
                 
             }
 
             fixed4 frag (geometryOutput i) : SV_Target
             {
-            	//grass color
+            	// Grass color
                 float4 color = lerp(_ColorBottom, _ColorTop, i.uv.y);
 				
             	float3 viewDirection  = normalize(_WorldSpaceCameraPos - i.vertexWorld );
 				float geometryFactorClampled = clamp(dot(_WorldSpaceLightPos0, i.normal), 0.9, 1);
-
+				float4 SSS = SubsurfaceScatering( viewDirection, i.normal);
             	//final color
-				float4 finalColor =  geometryFactorClampled * (color + SubsurfaceScatering( viewDirection, i.normal));
+				float4 finalColor =  geometryFactorClampled * (color + SSS);
 
             	return finalColor;
             }
