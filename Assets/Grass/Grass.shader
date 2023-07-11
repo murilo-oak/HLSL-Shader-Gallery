@@ -246,7 +246,7 @@ Shader "Unlit/Grass"
             	float3 viewDirection  = normalize(_WorldSpaceCameraPos - i.vertexWorld );
 				float geometryFactorClampled = clamp(dot(_WorldSpaceLightPos0, i.normal), 0.9, 1);
 				float4 SSS = SubsurfaceScatering( viewDirection, i.normal);
-            	//final color
+            	
 				float4 finalColor =  geometryFactorClampled * (color + SSS);
 
             	return finalColor;
